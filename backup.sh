@@ -6,12 +6,11 @@ REMOTE_HOST="madih@192.168.0.103"
 REMOTE_DIR="/root/"
 #fanuctions to perfom the buckup
 prefome_backup(){
-    rsync -avz "$SOURCE_DIR" "$REMOTE_HOST" : "REMOTE_DIR" > "LOG_FILE" 2>&1
-    if[ $? -eq 0 ];
-    then
-        echo "buckup Sucssesful  $(data) >> "$LOG_FILE"
+    rsync -avz "$SOURCE_DIR" "$REMOTE_HOST":"REMOTE_DIR" > "LOG_FILE" 2>&1
+    if[ $? -eq 0 ];then
+        echo "buckup Sucssesful  $(date)" >> "$LOG_FILE" 
     else
-        echo "buckup field  $(data) >> "$LOG_FILE"
+        echo "buckup field  $(date)" >> "$LOG_FILE" 
     fi
 
 }
