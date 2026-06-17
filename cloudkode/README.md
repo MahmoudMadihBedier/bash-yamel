@@ -1,38 +1,60 @@
-Role Name
-=========
+# cloudkode Ansible Role
 
-A brief description of the role goes here.
+`cloudkode` is an Ansible role scaffold created for this Linux administration lab. It is currently ready for future automation work, but the task, handler, variable, and metadata files still contain placeholder content.
 
-Requirements
-------------
+## Role Structure
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+| Path | Purpose |
+| --- | --- |
+| `tasks/main.yml` | Main tasks executed by the role |
+| `handlers/main.yml` | Handlers notified by tasks, such as service restarts |
+| `defaults/main.yml` | Default variables that can be overridden by playbooks or inventory |
+| `vars/main.yml` | Role variables with higher precedence than defaults |
+| `meta/main.yml` | Ansible Galaxy metadata and role dependencies |
+| `tests/test.yml` | Basic test playbook that applies the role to `localhost` |
+| `tests/inventory` | Test inventory containing `localhost` |
 
-Role Variables
---------------
+## Requirements
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+- Ansible installed on the control machine
+- A valid inventory for the hosts where the role will run
+- Sudo or privilege escalation if future tasks manage packages, services, or system files
 
-Dependencies
-------------
+## Role Variables
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+No active role variables are defined yet.
 
-Example Playbook
-----------------
+Future variables can be added to:
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+- `defaults/main.yml` for values users should be able to override
+- `vars/main.yml` for role-specific values that should rarely change
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+## Dependencies
 
-License
--------
+No role dependencies are currently defined.
 
-BSD
+## Example Playbook
 
-Author Information
-------------------
+```yaml
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - cloudkode
+```
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+## Test Command
+
+From the repository root, run:
+
+```bash
+ansible-playbook -i cloudkode/tests/inventory cloudkode/tests/test.yml
+```
+
+## Next Steps
+
+- Replace placeholder metadata in `meta/main.yml`
+- Add real tasks to `tasks/main.yml`
+- Add handlers if the role manages services
+- Add defaults for package names, service names, paths, or users
+- Expand tests once the role has real behavior
