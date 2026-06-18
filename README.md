@@ -5,20 +5,20 @@
 ![Red Hat](https://img.shields.io/badge/Red%20Hat-Training%20Practice-EE0000?style=for-the-badge&logo=redhat&logoColor=white)
 ![Ansible](https://img.shields.io/badge/Ansible-Automation-EE0000?style=for-the-badge&logo=ansible&logoColor=white)
 
-This repository is a hands-on Linux system administration lab. It combines Bash scripts and Ansible files used to practice real server tasks such as remote control, Apache installation, backup automation, live monitoring, log rotation, and role scaffolding.
+This repository is a hands-on Linux system administration lab. It combines Bash scripts and Ansible files used to practice real server tasks such as remote control, Apache installation, backup automation, live monitoring, log rotation, and Ansible role structure.
 
 ## Project Overview
 
 ```mermaid
 flowchart LR
-    A[Local Machine] -->|SSH and Git| B[Linux Server]
-    A -->|Ansible inventory| C[Managed Host]
-    B -->|Run Bash scripts| D{Admin Tasks}
-    C -->|installApache.yaml| E[Apache httpd]
-    D --> F[Backup with rsync]
-    D --> G[Monitor resources]
-    D --> H[Rotate logs]
-    F --> I[Remote Backup Server]
+    A[Control Machine] -->|SSH| B[Managed Linux Host]
+    A -->|Ansible inventory| C[server3.madih.com]
+    C -->|installApache.yaml| D[Apache httpd]
+    A -->|Bash scripts| E{Admin Practice}
+    E --> F[Backup with rsync]
+    E --> G[Monitor resources]
+    E --> H[Rotate logs]
+    F --> I[Remote backup path]
 ```
 
 ## Repository Contents
@@ -30,21 +30,21 @@ flowchart LR
 | `mointor.sh` | Continuously prints time, memory usage, network interface statistics, and process count |
 | `logrotaet.sh` | Practice log rotation script for rotating, compressing, and cleaning old logs |
 | `hosts.ini` | Ansible inventory for the web server host |
-| `installApache.yaml` | Ansible playbook that installs, starts, and enables Apache `httpd` |
-| `cloudkode/` | Ansible role scaffold for future automation tasks |
+| `installApache.yaml` | Ansible playbook that runs an Apache role on the managed host |
+| `roles/cloudkode/` | Ansible role scaffold with Apache package and service tasks |
 
 ## Skills Demonstrated
 
 | Area | Skills |
 | --- | --- |
-| Linux Administration | File systems, permissions, process checks, service management awareness |
+| Linux Administration | File systems, permissions, process checks, package installation, service management |
 | Bash Scripting | Variables, functions, loops, conditions, command output, log files |
 | Remote Management | SSH workflow, remote server access, Git clone on server |
 | Backup Automation | `rsync`, remote destination paths, backup logging |
 | Monitoring | Memory usage, network statistics, running process count |
 | Log Management | Log rotation, compression, cleanup by age |
-| Ansible Automation | Inventory files, playbooks, privilege escalation, package and service modules |
-| Role Structure | `tasks`, `handlers`, `defaults`, `vars`, `meta`, and `tests` directories |
+| Ansible Automation | Inventory files, playbooks, privilege escalation, roles, package and service modules |
+| Role Structure | `tasks`, `handlers`, `defaults`, `vars`, `meta`, `files`, `templates`, and `tests` directories |
 
 ## Ansible Files
 
@@ -54,21 +54,36 @@ Defines the managed web host:
 
 ```ini
 [web]
-server.madih.com ansible_host=192.168.0.103 ansible_user=madih
+server3.madih.com ansible_host=192.168.0.104 ansible_user=madih
 ```
 
 ### `installApache.yaml`
 
-Runs against `server.madih.com` with privilege escalation and performs two tasks:
+Runs against `server3.madih.com` with privilege escalation:
 
-- Installs the `httpd` package using `ansible.builtin.dnf`
-- Starts and enables the `httpd` service using `ansible.builtin.service`
+```yaml
+---
+- name: Install and start apache
+  hosts: server3.madih.com
+  become: yes
+
+  roles:
+    - postname.apache
+...
+```
 
 Run it with:
 
 ```bash
 ansible-playbook -i hosts.ini installApache.yaml
 ```
+
+The playbook currently references the role name `postname.apache`. The repository also contains a local role at `roles/cloudkode/` with tasks that install and start Apache:
+
+- Install the `httpd` package using `ansible.builtin.dnf`
+- Start and enable the `httpd` service using `ansible.builtin.service`
+
+If you want the playbook to use the local role, update `installApache.yaml` to reference `cloudkode` instead of `postname.apache`.
 
 ## Bash Scripts
 
@@ -119,36 +134,39 @@ Practice script for log rotation and cleanup. Its intended workflow is:
 
 Before using this script in a real system, review and test it carefully because it is still a practice script and needs syntax fixes.
 
-## Ansible Role: `cloudkode`
+## Ansible Role: `roles/cloudkode`
 
-The `cloudkode` directory is an Ansible role scaffold. It currently contains the standard role layout and placeholder files:
+`roles/cloudkode/` is an Ansible role scaffold. Its current task file installs Apache and ensures the service is started and enabled.
 
 | Path | Purpose |
 | --- | --- |
-| `cloudkode/tasks/main.yml` | Main role tasks |
-| `cloudkode/handlers/main.yml` | Handlers triggered by tasks |
-| `cloudkode/defaults/main.yml` | Default role variables |
-| `cloudkode/vars/main.yml` | Role variables |
-| `cloudkode/meta/main.yml` | Role metadata and dependency definitions |
-| `cloudkode/tests/test.yml` | Simple role test playbook |
-| `cloudkode/tests/inventory` | Local test inventory |
-| `cloudkode/README.md` | Role-specific documentation |
+| `roles/cloudkode/tasks/main.yml` | Main role tasks |
+| `roles/cloudkode/handlers/main.yml` | Handlers triggered by tasks |
+| `roles/cloudkode/defaults/main.yml` | Default role variables |
+| `roles/cloudkode/vars/main.yml` | Role variables |
+| `roles/cloudkode/meta/main.yml` | Role metadata and dependency definitions |
+| `roles/cloudkode/files/` | Static files that can be copied by the role |
+| `roles/cloudkode/templates/` | Jinja2 templates that can be rendered by the role |
+| `roles/cloudkode/tests/test.yml` | Simple role test playbook |
+| `roles/cloudkode/tests/inventory` | Local test inventory |
+| `roles/cloudkode/README.md` | Role-specific documentation |
 
 Test the role scaffold with:
 
 ```bash
-ansible-playbook -i cloudkode/tests/inventory cloudkode/tests/test.yml
+ansible-playbook -i roles/cloudkode/tests/inventory roles/cloudkode/tests/test.yml
 ```
 
 ## Basic Workflow
 
-1. Clone the repository on the Linux server.
+1. Clone the repository on the control machine or Linux server.
 2. Review `hosts.ini` and update the host, IP address, or user if needed.
-3. Run the Apache playbook with Ansible.
-4. Make the Bash scripts executable.
-5. Check script syntax before running.
-6. Run the monitoring, backup, or log rotation practice scripts.
-7. Review command output and log files.
+3. Confirm that `installApache.yaml` references the role you want to run.
+4. Run the Apache playbook with Ansible.
+5. Make the Bash scripts executable.
+6. Check script syntax before running.
+7. Run the monitoring, backup, or log rotation practice scripts.
+8. Review command output and log files.
 
 Example commands:
 
@@ -173,9 +191,10 @@ The goal of this lab is to connect Red Hat administration training with real ser
 - Rename `mointor.sh` to `monitor.sh`
 - Rename `logrotaet.sh` to `logrotate.sh`
 - Fix and test the log rotation script syntax
+- Decide whether the Apache playbook should use `postname.apache` or the local `cloudkode` role
 - Move hardcoded paths, hosts, and users into configuration variables
 - Add stronger error handling to the Bash scripts
 - Add cron jobs for scheduled backup and log rotation
 - Add systemd service or timer examples
-- Add real tasks and variables to the `cloudkode` Ansible role
+- Replace placeholder metadata in `roles/cloudkode/meta/main.yml`
 - Add Ansible checks for firewall rules if Apache should be reachable from other machines

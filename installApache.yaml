@@ -1,16 +1,8 @@
 ---
 - name: Install and start apache
-  hosts: server.madih.com
+  hosts: server3.madih.com
   become: yes
 
-  tasks:
-    - name: Install apache
-      ansible.builtin.dnf:
-        name: httpd
-        state: present
-
-    - name: Start apache service
-      ansible.builtin.service:
-        name: httpd
-        state: started
-        enabled: yes
+  roles:
+    - postname.apache
+...
